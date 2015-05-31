@@ -17,12 +17,28 @@ class Action < Qt::Action
     end
 end
 
+class Actions
+    def initialize
+        @actions = ["Activity1", "Activity2", "Activity3", "Rest"]
+        @currentAction = @actions[-1]
+    end
+
+    def each
+        @actions.each do |action|
+            yield action
+        end
+    end
+end
+
 class TrayMenu < Qt::Menu
     def initialize
         super
-        action = self.addAction "Action"
-        action.connect(action, SIGNAL('triggered()')) do
-            puts 'Action'
+        @actions = Actions.new
+        @actions.each do |action|
+            act = self.addAction action
+            act.connect(act, SIGNAL('triggered()')) do
+                puts action + ' ' + Time.now.inspect
+            end
         end
         self.addExitAction
     end
