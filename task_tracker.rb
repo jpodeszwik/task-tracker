@@ -1,4 +1,5 @@
 require 'Qt4'
+require './db.rb'
 
 class IconSet
     def initialize
