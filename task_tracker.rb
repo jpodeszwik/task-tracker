@@ -20,8 +20,32 @@ end
 
 class Actions
     def initialize
-        @actions = ["Activity1", "Activity2", "Activity3", "Rest"]
+        @actions = Activity.all
         @currentAction = @actions[-1]
+        @currentTimes = ActivityTime.create(:activity_id => @currentAction.id, :start => Time.now, :stop => nil)
+    end
+
+    def setCurrent(actionToSet)
+        self.stopCurrent
+        @actions.each do |action|
+            if actionToSet == action
+                @currentAction = action
+                self.startCurrent
+            end
+        end
+    end
+
+    def stopCurrent
+        @currentTimes.stop = Time.now
+        @currentTimes.save
+    end
+
+    def startCurrent
+        @currentTimes = ActivityTime.create(:activity_id => @currentAction.id, :start => Time.now, :stop => nil)
+    end
+
+    def getCurrent
+        @currentAction
     end
 
     def each
@@ -36,9 +60,11 @@ class TrayMenu < Qt::Menu
         super
         @actions = Actions.new
         @actions.each do |action|
-            act = self.addAction action
+            act = self.addAction action.name
             act.connect(act, SIGNAL('triggered()')) do
-                puts action + ' ' + Time.now.inspect
+                puts 'Current: ' + @actions.getCurrent.name
+                @actions.setCurrent action
+                puts 'New: ' + action.name
             end
         end
         self.addExitAction
